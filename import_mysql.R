@@ -6,6 +6,8 @@ con <- dbConnect(odbc::odbc(),
                  UID = "root", PWD = key_get("DB_PWD"),
                  Port = 3306)
 
+dbDisconnect(con)
+
 ###########################################################################################
 ###############     Import Game Packs Data With mlb_schedule()    #########################
 ###########################################################################################
@@ -44,22 +46,20 @@ write_game_pks <- function(connect, year){
                append = TRUE)
 }
 
-years <- c(2008:2021)
+years <- c(2013:2021)
 
 for(y in years){
   write_game_pks(connect = con, year = y)
 }
 
 ###########################################################################################
+# field.types argument for mlb_pbp data
 
 TYPES2 <- list(game_pk = "Int(10)", 
                game_date = "Date",
                index = "Int(10)", 
-               start_time = "varchar(100)",
-               end_time = "varchar(100)", 
                is_pitch = "Boolean", 
-               type = "varchar(100)",
-               play_id = "varchar(100)", 
+               type = "varchar(100)", 
                pitch_number = "Int(10)", 
                details_description = "varchar(100)", 
                details_event = "varchar(100)",
@@ -71,45 +71,38 @@ TYPES2 <- list(game_pk = "Int(10)",
                details_ball_color = "varchar(100)",
                details_is_in_play = "Boolean", 
                details_is_strike = "Boolean",
-               details_is_ball = "Boolean", 
-               details_call_code = "varchar(100)",
+               details_is_ball = "Boolean",
                details_call_description = "varchar(100)", 
                count_balls_start = "Int(10)",
                count_strikes_start = "Int(10)", 
                count_outs_start = "Int(10)",
                player_id = "Int(10)", 
                player_link = "varchar(100)", 
-               pitch_data_strike_zone_top = "double(5,2)", 
-               pitch_data_strike_zone_bottom = "double(5,2)",
-               details_from_catcher = "boolean",
-               pitch_data_coordinates_x = "double(10,2)",
-               pitch_data_coordinates_y = "double(10,2)",
+               pitch_data_strike_zone_top = "double(6,4)", 
+               pitch_data_strike_zone_bottom = "double(6,4)",
+               pitch_data_coordinates_x = "double(10,4)",
+               pitch_data_coordinates_y = "double(10,4)",
                hit_data_trajectory = "varchar(100)", 
                hit_data_hardness = "varchar(100)",
                hit_data_location = "Int(10)", 
-               hit_data_coordinates_coord_x = "double(10,2)",
-               hit_data_coordinates_coord_y = "double(10,2)",
-               action_play_id = "varchar(100)",
+               hit_data_coordinates_coord_x = "double(10,4)",
+               hit_data_coordinates_coord_y = "double(10,4)",
                details_event_type = "varchar(100)",
                details_runner_going = "boolean",
                position_code = "Int(10)", 
                position_name = "varchar(100)",
                position_type = "varchar(100)", 
-               position_abbreviation = "varchar(100)",
-               batting_order = "Int(10)", 
+               position_abbreviation = "varchar(100)", 
                at_bat_index = "Int(10)",
                result_type = "varchar(100)", 
                result_event = "varchar(100)",
-               result_event_type = "varchar(100)", 
-               result_description = "varchar(100)",
+               result_event_type = "varchar(100)",
                result_rbi = "Int(10)", 
                result_away_score = "Int(10)",
                result_home_score = "Int(10)", 
                about_at_bat_index = "Int(10)",
                about_half_inning = "varchar(100)", 
                about_inning = "Int(10)",
-               about_start_time = "varchar(100)", 
-               about_end_time = "varchar(100)",
                about_is_complete = "boolean", 
                about_is_scoring_play = "boolean",
                about_has_review = "boolean", 
@@ -147,39 +140,38 @@ TYPES2 <- list(game_pk = "Int(10)",
                away_league_id = "Int(10)", 
                away_league_name = "varchar(100)",
                batting_team = "varchar(100)", 
-               fielding_team = "varchar(100)",
-               last_pitch_of_ab = "boolean", 
+               fielding_team = "varchar(100)", 
                pfx_id = "varchar(100)",
                details_trail_color = "varchar(100)", 
                details_type_code = "varchar(100)",
                details_type_description = "varchar(100)", 
-               pitch_data_start_speed = "double(10,2)",
-               pitch_data_end_speed = "double(10,2)", 
+               pitch_data_start_speed = "double(10,4)",
+               pitch_data_end_speed = "double(10,4)", 
                pitch_data_zone = "Int(10)",
-               pitch_data_type_confidence = "double(10,2)", 
-               pitch_data_plate_time = "double(10,2)",
-               pitch_data_extension = "double(10,2)", 
-               pitch_data_coordinates_a_y = "double(10,2)",
-               pitch_data_coordinates_a_z = "double(10,2)",
-               pitch_data_coordinates_pfx_x = "double(10,2)",
-               pitch_data_coordinates_pfx_z = "double(10,2)",
-               pitch_data_coordinates_p_x = "double(10,2)",
-               pitch_data_coordinates_p_z = "double(10,2)",
-               pitch_data_coordinates_v_x0 = "double(10,2)",
-               pitch_data_coordinates_v_y0 = "double(10,2)",
-               pitch_data_coordinates_v_z0 = "double(10,2)",
-               pitch_data_coordinates_x0 = "double(10,2)",
-               pitch_data_coordinates_y0 = "double(10,2)",
-               pitch_data_coordinates_z0 = "double(10,2)",
-               pitch_data_coordinates_a_x = "double(10,2)",
-               pitch_data_breaks_break_angle = "double(10,2)",
-               pitch_data_breaks_break_length = "double(10,2)",
+               pitch_data_type_confidence = "double(10,4)", 
+               pitch_data_plate_time = "double(10,4)",
+               pitch_data_extension = "double(10,4)", 
+               pitch_data_coordinates_a_y = "double(10,4)",
+               pitch_data_coordinates_a_z = "double(10,4)",
+               pitch_data_coordinates_pfx_x = "double(10,4)",
+               pitch_data_coordinates_pfx_z = "double(10,4)",
+               pitch_data_coordinates_p_x = "double(10,4)",
+               pitch_data_coordinates_p_z = "double(10,4)",
+               pitch_data_coordinates_v_x0 = "double(10,4)",
+               pitch_data_coordinates_v_y0 = "double(10,4)",
+               pitch_data_coordinates_v_z0 = "double(10,4)",
+               pitch_data_coordinates_x0 = "double(10,4)",
+               pitch_data_coordinates_y0 = "double(10,4)",
+               pitch_data_coordinates_z0 = "double(10,4)",
+               pitch_data_coordinates_a_x = "double(10,4)",
+               pitch_data_breaks_break_angle = "double(10,4)",
+               pitch_data_breaks_break_length = "double(10,4)",
                pitch_data_breaks_break_y = "Int(10)",
                pitch_data_breaks_spin_rate = "Int(10)",
                pitch_data_breaks_spin_direction = "Int(10)",
-               hit_data_launch_speed = "double(10,2)",
-               hit_data_launch_angle = "double(10,2)",
-               hit_data_total_distance = "double(10,2)",
+               hit_data_launch_speed = "double(10,4)",
+               hit_data_launch_angle = "double(10,4)",
+               hit_data_total_distance = "double(10,4)",
                injury_type = "varchar(100)",
                umpire_id = "varchar(100)",
                umpire_link = "varchar(100)",
@@ -202,30 +194,36 @@ TYPES2 <- list(game_pk = "Int(10)",
 ###########################################################################################
 #################       Import Play By Play Data With mlb_pbp()      ######################
 ###########################################################################################
+not_included <- c("start_time", "end_time", "play_id", "details_call_code", "details_from_catcher", 
+                  "action_play_id", "batting_order", "result_description", "about_end_time",
+                  "about_start_time", "replaced_player_id", "replaced_player_link",
+                  "last_pitch_of_ab")
 
 game_packs <- tbl(src = con, "game_packs") %>%
   select(game_pk) %>%
   collect()
 game_packs <- as_vector(game_packs)
 
+pbp_init <- as_tibble(mlb_pbp(game_pk = game_packs[1])) %>%
+  clean_names() %>%
+  filter(type == "pitch") %>%
+  select(-all_of(not_included)) 
+  
+pbp_init$at_bat_index <- as.numeric(pbp_init$at_bat_index)
+pbp_init$pitch_number <- as.numeric(pbp_init$pitch_number)
 
+pbp_init <- pbp_init %>%
+  arrange(at_bat_index, pitch_number)
 
 dbWriteTable(con, name = "pbp", value = pbp_init,
-             field.types = TYPES2, row.names = FALSE)
+             field.types = TYPES2, row.names = FALSE, overwrite = TRUE)
 
-whatswrong <- tbl(src = con, "pbp") %>%
-  collect()
-
-wrong <- whatswrong %>%
-  
 
 write_pbp <- function(){
-pbp_init <- as_tibble(mlb_pbp(game_pk = game_packs[1])) %>%
-  select(-replacedPlayer.id, -replacedPlayer.link) %>%
-  clean_names()
+
 }
 
-dbDisconnect(con)
+
 
 
   
@@ -238,32 +236,3 @@ dbDisconnect(con)
 
 
 
-
-
-# importData <- function(season , team){
-#   
-#   game_packs <- as_vector(mlb_schedule(season = season,
-#                                        level_ids = "1") %>%
-#                             filter(teams_home_team_name == team) %>%
-#                             filter(date < "2022-09-29") %>%
-#                             select(game_pk))
-#   
-#   # Upon comparing data from each ballpark, we should not include:
-#   #   base, replacedPlayer.id, replacedPlayer.link
-#   # also cleans column names using janitor package (turns "." into "_") 
-#   
-#   pbp <- map_df(game_packs, mlb_pbp) %>%
-#     select(-base, -replacedPlayer.id, -replacedPlayer.link) %>%
-#     clean_names()
-#   
-#   return(pbp)
-#   
-# }
-# 
-# import_and_store <- function(year, home_team){
-#   temp <- as_tibble(importData(season = year, team = home_team))
-#   
-#   dbWriteTable(con, name = "data", value = temp, 
-#                row.names = FALSE,
-#                append = TRUE)
-# }
