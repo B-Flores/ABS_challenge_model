@@ -13,21 +13,18 @@ con <- dbConnect(odbc::odbc(), .connection_string = "Driver={MySQL ODBC 8.0 Unic
 ############################### Import and Clean Function #####################################
 ###############################################################################################
 
-
-# df_raw <- tbl(src = con, "pbp") %>%
-#   select(game_pk,matchup_batter_full_name,matchup_batter_id, details_code, count_balls_start, count_strikes_start, count_outs_start,
-#          pitch_data_coordinates_p_x, pitch_data_coordinates_p_z, pitch_data_strike_zone_top,
-#          pitch_data_strike_zone_bottom,matchup_bat_side_code, 
-#          matchup_pitch_hand_code) %>%
-#   collect()
-
 import_clean <- function(mysql = con){
   
   df_raw <- tbl(src = mysql, "pbp") %>%
-    select(game_pk,matchup_batter_full_name,matchup_batter_id, details_code, count_balls_start, count_strikes_start, count_outs_start,
-           pitch_data_coordinates_p_x, pitch_data_coordinates_p_z, pitch_data_strike_zone_top,
-           pitch_data_strike_zone_bottom,matchup_bat_side_code, 
-           matchup_pitch_hand_code) %>%
+    select(game_pk, game_date, pitch_number,at_bat_index, about_half_inning,
+           about_inning,matchup_batter_full_name,matchup_batter_id, details_code, 
+           count_balls_start, count_strikes_start, count_outs_start, 
+           pitch_data_coordinates_p_x, 
+           pitch_data_coordinates_p_z, 
+           pitch_data_strike_zone_top,
+           pitch_data_strike_zone_bottom,
+           matchup_bat_side_code, matchup_pitch_hand_code, result_event,
+           result_description) %>%
     collect()
   
   # Calculates outcome variable -- Good Eye %
@@ -37,7 +34,8 @@ import_clean <- function(mysql = con){
                                   pitch_data_coordinates_p_z - pitch_data_strike_zone_top > 0 |
                                   pitch_data_strike_zone_bottom - pitch_data_coordinates_p_z > 0 ~ "ball",
                                 TRUE ~ "strike")) %>%
-    mutate(chall_opp = case_when((count_strikes_start == 2 & details_code == 'C') ~ 1,
+    mutate(chall_opp = case_when((count_strikes_start == 2 & details_code == 'C')  |
+                                   (count_balls_start == 3 & details_code == 'C') ~ 1,
                                  TRUE~0)) %>%
     mutate(good_eye = case_when((abs_call == "ball" & chall_opp == 1) ~ 1,
                                 TRUE~0)) 
@@ -81,7 +79,8 @@ import_clean <- function(mysql = con){
   umps <- 
     tbl(src = mysql, "umpire") %>%
     filter(position == "HP") %>%
-    select(game_pk, name) %>%
+    mutate(ump_name = name) %>%
+    select(game_pk, ump_name) %>%
     distinct() %>%
     collect()
   
@@ -106,6 +105,12 @@ import_clean <- function(mysql = con){
   return(final_df)
 } 
 
+df %>%
+  mutate(leadoff = case_when()) %>%
+  mutate(man_on_first = case_when(),
+         man_on_second = case_when(), 
+         man_on_third = case_when())
+
 start <- Sys.time()
 df <- import_clean()
 end <- Sys.time()
@@ -113,6 +118,44 @@ duration <- end - start
 duration
 
 dbDisconnect(con)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###############################################################################################
+##############################      Helper Functions      #####################################
+###############################################################################################
+class_of <- function(df0, year = 2022){
+  # Players active in 2022  
+  df0 %>%
+    filter(year(game_date) == year) %>%
+    select(matchup_batter_id) %>%
+    distinct() %>%
+    as_vector() -> df0
+  return(df0)
+}
+
+
 # brewersID <- mlb_teams(season = 2023 ) %>%
 #   filter(team_full_name == "Milwaukee Brewers") %>%
 #   select(team_id)
