@@ -24,7 +24,7 @@ import_clean <- function(mysql = con){
            pitch_data_strike_zone_top,
            pitch_data_strike_zone_bottom,
            matchup_bat_side_code, matchup_pitch_hand_code, result_event,
-           result_description) %>%
+           matchup_splits_men_on_base, result_description) %>%
     collect()
   
   # Calculates outcome variable -- Good Eye %
@@ -105,17 +105,47 @@ import_clean <- function(mysql = con){
   return(final_df)
 } 
 
-df %>%
-  mutate(leadoff = case_when()) %>%
-  mutate(man_on_first = case_when(),
-         man_on_second = case_when(), 
-         man_on_third = case_when())
-
-start <- Sys.time()
 df <- import_clean()
-end <- Sys.time()
-duration <- end - start
-duration
+
+
+
+#################################################################################
+######################### BASE / OUT STATES #####################################
+#################################################################################
+
+# Out states already available in data (count_outs_start)
+# start <- Sys.time()
+# base_states_after <- df %>%
+#   mutate(bases_empty = case_when(matchup_splits_men_on_base == "Empty" ~ TRUE,
+#                                 TRUE ~ FALSE),
+#          man_on_first = case_when(matchup_splits_men_on_base == "Men_On" |
+#                                     str_detect(result_description, pattern = ".*singles") | 
+#                                     str_detect(result_description, pattern = ".*walks")~ TRUE,
+#                                 TRUE ~  FALSE),
+#          man_on_second = case_when(str_detect(result_description, pattern = ".*to 2nd") |
+#                                      str_detect(result_description, pattern = ".*doubles")~ TRUE,
+#                                 TRUE ~ FALSE),
+#          man_on_third = case_when(str_detect(result_description, pattern = ".*to 3rd") |
+#                                     str_detect(result_description, pattern = ".*triples")~ TRUE,
+#                                   TRUE ~ FALSE))
+# 
+# 
+# 
+# 
+# 
+# base_states <- base_states_after %>%
+#   distinct(game_date, game_pk, at_bat_index, result_description, bases_empty, man_on_first, man_on_second,
+#          man_on_third) %>%
+#   arrange(game_date, game_pk, at_bat_index) %>%
+#   mutate(bases_empty = lag(bases_empty), man_on_first = lag(man_on_first),
+#          man_on_second = lag(man_on_second), man_on_third = lag(man_on_third))
+# 
+
+
+
+
+
+
 
 dbDisconnect(con)
 

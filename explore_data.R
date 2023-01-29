@@ -10,7 +10,7 @@ df %>%
     geom_col(show.legend = FALSE) +
     scale_y_continuous(labels = scales::percent_format()) +
     coord_flip() +
-  ylab(label = "Good Eye %") +
+  ylab(label = "Unweighted Good Eye %") +
   theme_minimal()
 
 
